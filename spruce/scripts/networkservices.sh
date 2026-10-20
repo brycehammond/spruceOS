@@ -4,6 +4,7 @@
 . /mnt/SDCARD/spruce/scripts/network/sambaFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/sftpgoFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/syncthingFunctions.sh
+. /mnt/SDCARD/spruce/scripts/network/oneretroFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/darkhttpdFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/raproxyFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/timeFunctions.sh
@@ -15,6 +16,7 @@ samba_enabled="$(get_config_value '.menuOptions."Network Settings".enableSamba.s
 ssh_enabled="$(get_config_value '.menuOptions."Network Settings".enableSSH.selected' "False")"
 sftpgo_enabled="$(get_config_value '.menuOptions."Network Settings".enableSFTPGo.selected' "False")"
 syncthing_enabled="$(get_config_value '.menuOptions."Network Settings".enableSyncthing.selected' "False")"
+oneretro_enabled="$(get_config_value '.menuOptions."Network Settings".enable1RetroSync.selected' "False")"
 # Grouped with the RetroAchievements settings rather than the network ones:
 # that is where a user goes looking for it.
 raproxy_enabled="$(get_config_value '.menuOptions."RetroAchievements Settings".enableOfflineProxy.selected' "False")"
@@ -124,6 +126,16 @@ connect_services() {
 		stop_syncthing_process
 	fi
 
+	# 1Retro background save sync
+	if [ "$oneretro_enabled" = "True" ]; then
+		if ! oneretro_watcher_running; then
+			log_message "Network services: 1Retro watcher detected not running, starting..."
+			start_oneretro_process
+		fi
+	else
+		stop_oneretro_process
+	fi
+
 	# Only ever started here, never stopped: losing the network is not a reason
 	# to stop an offline proxy. runtime.sh starts it at boot; this is a re-check.
 	if [ "$raproxy_enabled" = "True" ] && ! ra_proxy_is_running; then
@@ -151,13 +163,14 @@ disconnect_services() {
 
 	log_message "Network services: Stopping all network services..."
 
-	for service in "$SFTP_SERVICE_NAME" "$SSH_SERVICE_NAME" "smbd" "syncthing" "darkhttpd"; do
+	for service in "$SFTP_SERVICE_NAME" "$SSH_SERVICE_NAME" "smbd" "syncthing" "1retro-onionos" "darkhttpd"; do
 		if pgrep "$service" >/dev/null; then
 			case "$service" in
 			"$SFTP_SERVICE_NAME") stop_sftpgo_process ;;
 			"$SSH_SERVICE_NAME") stop_ssh_process ;;
 			"smbd") stop_samba_process ;;
 			"syncthing") stop_syncthing_process ;;
+			"1retro-onionos") stop_oneretro_process ;;
 			"darkhttpd") stop_darkhttpd_process ;;
 			esac
 		fi

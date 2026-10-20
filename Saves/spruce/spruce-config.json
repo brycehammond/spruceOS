@@ -575,6 +575,16 @@
                 "selected":"False",
                 "changeCmd": "/mnt/SDCARD/spruce/scripts/applySetting/networkServiceToggle.sh syncthing"
             },
+            "enable1RetroSync": {
+                "display": "Enable 1Retro Background Sync",
+                "description": "Sync saves with 1retro.com over WiFi. Pair this device in the 1Retro Sync app first.",
+                "options":[
+                    "True",
+                    "False"
+                ],
+                "selected":"False",
+                "changeCmd": "/mnt/SDCARD/spruce/scripts/applySetting/networkServiceToggle.sh oneretro"
+            },
             "enableSFTPGo": {
                 "display": "Enable WiFi File Transfer",
                 "description": "http://{ip_addr}:8080",

@@ -1,0 +1,47 @@
+#!/bin/sh
+# Stand-in for Onion's infoPanel, which 1Retro's OnionOS client runs to put
+# things on screen: `infoPanel -i <png>` for the device-link screen it renders
+# itself (QR code, 4-character code, device ID), and `infoPanel -m <text>`,
+# with an optional `-t <title>`, for status and results. The client looks for
+# infoPanel in Onion's .tmp_update/bin, then /usr/bin, then on PATH, and
+# launch.sh puts this folder on PATH.
+#
+# Onion's infoPanel stays up until a button is pressed. The client runs it
+# again every few seconds while it waits for the pairing to be approved, and
+# once more with the final result. This one hands the content to spruce's
+# message display and returns at once, keeping the last message so launch.sh
+# can show it and wait for the button itself. It always returns 0: a failed
+# infoPanel reads to the client as the user cancelling.
+
+. /mnt/SDCARD/spruce/scripts/helperFunctions.sh
+. /mnt/SDCARD/spruce/scripts/network/oneretroFunctions.sh
+
+ICON="/mnt/SDCARD/App/1RetroSync/icon.png"
+
+image=""
+message=""
+title=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -i|--image)   image="$2"; shift ;;
+        -m|--message) message="$2"; shift ;;
+        -t|--title)   title="$2"; shift ;;
+    esac
+    shift
+done
+
+# A two-character \n is what display_* takes for a line break.
+text="$message"
+if [ -n "$title" ]; then
+    [ -n "$message" ] && text="$title\n$message" || text="$title"
+fi
+
+if [ -n "$image" ] && [ -f "$image" ]; then
+    # The link screen is a complete 640x480 panel of its own.
+    display_image_and_text "$image" 85 2 "$text" 90
+else
+    [ -n "$text" ] && printf '%s' "$text" > "$ONERETRO_LAST_MESSAGE"
+    display_image_and_text "$ICON" 20 20 "$text" 55
+fi
+
+exit 0

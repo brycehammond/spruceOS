@@ -1,0 +1,18 @@
+{
+  "label": "1Retro Sync",
+  "icon": "icon.png",
+  "launch": "launch.sh",
+  "description": "Sync game saves with the 1Retro cloud (1retro.com)",
+  "devices": [
+    "MIYOO_FLIP",
+    "MIYOO_A30",
+    "MIYOO_MINI_FAMILY",
+    "GKD_PIXEL2",
+    "TRIMUI_A133P",
+    "TRIMUI_SMART_PRO_S",
+    "ANBERNIC_RGXX",
+    "MAGICX_A133P",
+    "DARKMOSS"
+  ],
+  "hideInSimpleMode": true
+}

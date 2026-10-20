@@ -1,10 +1,10 @@
 #!/bin/sh
 # Apply a service toggle (Enable Samba / Enable SSH / Enable WiFi File
-# Transfer / Enable Syncthing / RAOfflineProxy) immediately, instead of
+# Transfer / Enable Syncthing / 1Retro background sync / RAOfflineProxy) immediately, instead of
 # waiting for networkservices.sh's own connect loop to notice on its next
 # wake, or for a reboot.
 #
-# Usage: networkServiceToggle.sh <samba|ssh|sftpgo|syncthing|raproxy> <True|False>
+# Usage: networkServiceToggle.sh <samba|ssh|sftpgo|syncthing|oneretro|raproxy> <True|False>
 #
 # Wired up as each setting's changeCmd. PyUI's set_menu_option() saves the
 # newly-selected value to spruce-config.json before running changeCmd (see
@@ -16,6 +16,7 @@
 . /mnt/SDCARD/spruce/scripts/network/sshFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/sftpgoFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/syncthingFunctions.sh
+. /mnt/SDCARD/spruce/scripts/network/oneretroFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/darkhttpdFunctions.sh
 . /mnt/SDCARD/spruce/scripts/network/raproxyFunctions.sh
 
@@ -28,6 +29,7 @@ case "$SERVICE" in
     ssh)       PROC_NAME="$(get_ssh_service_name)" ;;
     sftpgo)    PROC_NAME="$(get_sftp_service_name)" ;;
     syncthing) PROC_NAME="syncthing" ;;
+    oneretro)  PROC_NAME="1retro-onionos" ;;
     raproxy)   PROC_NAME="$RA_PROXY_PROC" ;;
     *)
         log_message "networkServiceToggle: unknown service '$SERVICE'"
@@ -41,6 +43,7 @@ start_service() {
         ssh)       start_ssh_process ;;
         sftpgo)    start_sftpgo_process ;;
         syncthing) start_syncthing_process ;;
+        oneretro)  start_oneretro_process ;;
         raproxy)   start_raproxy_process ;;
     esac
 }
@@ -48,6 +51,7 @@ start_service() {
 service_is_running() {
     case "$SERVICE" in
         raproxy) ra_proxy_is_running ;;
+        oneretro) oneretro_watcher_running ;;
         *)       pgrep "$PROC_NAME" >/dev/null ;;
     esac
 }
@@ -58,6 +62,7 @@ stop_service() {
         ssh)       stop_ssh_process ;;
         sftpgo)    stop_sftpgo_process ;;
         syncthing) stop_syncthing_process ;;
+        oneretro)  stop_oneretro_process ;;
         raproxy)   stop_raproxy_process ;;
     esac
 }
