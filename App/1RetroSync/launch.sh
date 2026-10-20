@@ -61,7 +61,9 @@ rc=$?
 log_message "1Retro Sync: client exited with status $rc"
 
 # The client's own closing message, if infoPanel saw one; the status otherwise.
-final="$(cat "$ONERETRO_LAST_MESSAGE" 2>/dev/null)"
+# Its "Press any button to exit." was for Onion's infoPanel, which waited for
+# the button; the prompt below is the one that applies here.
+final="$(sed -e '/^Press any button to exit\.$/d' "$ONERETRO_LAST_MESSAGE" 2>/dev/null | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')"
 if [ -z "$final" ]; then
     if [ "$rc" -eq 0 ]; then
         final="Sync complete."
